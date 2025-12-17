@@ -71,3 +71,4 @@ def test_junit_raises_if_testcase_name_missing_or_empty(tmp_path):
         load_junit_results(str(p))
 
 
+

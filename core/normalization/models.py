@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True, slots=True)
-class TestCase:
+class TestCaseModel:
     id: str
     title: str
     priority: str | None = None
@@ -13,7 +13,7 @@ class TestCase:
 
 
 @dataclass(frozen=True, slots=True)
-class TestResult:
+class TestResultModel:
     id: str
     status: str
     duration_sec: float | None = None
@@ -22,7 +22,7 @@ class TestResult:
 
 @dataclass(frozen=True, slots=True)
 class NormalizedData:
-    test_cases: dict[str, TestCase]
-    results: list[TestResult]
+    test_cases: dict[str, TestCaseModel]
+    results: list[TestResultModel]
 
 

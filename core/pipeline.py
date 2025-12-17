@@ -1,37 +1,28 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-
-from core.normalization.test_model import TestCase, TestResult
+from core.normalization import normalize
 
 
-def run_pipeline(test_cases: Mapping[str, TestCase], test_results: Iterable[TestResult]) -> dict:
+def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
     """
-    Phase 1 placeholder.
+    Run the QA pipeline: normalize input data and compute basic counts.
 
-    Deterministic behavior: only validates basic types and returns counts.
+    Returns dict with:
+    - test_cases_count: number of unique test cases
+    - results_count: number of test results
+    - mapped_results_count: number of results with ids present in test_cases
     """
-    if not isinstance(test_cases, Mapping):
-        raise TypeError("test_cases must be a Mapping[str, TestCase]")
+    data = normalize(test_case_dicts, result_dicts)
 
-    for k, v in test_cases.items():
-        if not isinstance(k, str):
-            raise TypeError("test_cases keys must be str")
-        if not isinstance(v, TestCase):
-            raise TypeError("test_cases values must be TestCase")
+    test_cases_count = len(data.test_cases)
+    results_count = len(data.results)
 
-    if not isinstance(test_results, Iterable):
-        raise TypeError("test_results must be an Iterable[TestResult]")
-
-    results_list: list[TestResult] = []
-    for r in test_results:
-        if not isinstance(r, TestResult):
-            raise TypeError("test_results items must be TestResult")
-        results_list.append(r)
+    mapped_results_count = sum(1 for r in data.results if r.id in data.test_cases)
 
     return {
-        "test_cases_count": len(test_cases),
-        "results_count": len(results_list),
+        "test_cases_count": test_cases_count,
+        "results_count": results_count,
+        "mapped_results_count": mapped_results_count,
     }
 
 
