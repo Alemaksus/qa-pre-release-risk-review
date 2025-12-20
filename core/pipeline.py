@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from core.normalization import normalize
-from core.scoring.scorer import compute_metrics, compute_release_readiness_score, classify_risk
+from core.scoring.scorer import compute_metrics
 from core.reporting.report_builder import build_markdown_report
+from pack.config import ScoringConfig, compute_score_with_config, classify_risk_with_config
 
 
 def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
@@ -18,8 +19,9 @@ def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
     """
     data = normalize(test_case_dicts, result_dicts)
     metrics = compute_metrics(data)
-    score = compute_release_readiness_score(metrics)
-    risk = classify_risk(score)
+    config = ScoringConfig()
+    score = compute_score_with_config(metrics, config)
+    risk = classify_risk_with_config(score, config)
     markdown = build_markdown_report(metrics, score, risk)
 
     test_cases_count = len(data.test_cases)
