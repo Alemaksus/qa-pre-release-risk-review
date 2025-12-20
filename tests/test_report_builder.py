@@ -283,3 +283,102 @@ def test_score_display_format():
     assert "**Score:** 95 / 100" in report
     assert "**Risk Level:** Low" in report
 
+
+def test_insights_section_appears_when_provided():
+    """Verify insights section is included when insights are provided."""
+    from pack.insights import Insight
+
+    metrics = {
+        "total_cases": 10,
+        "total_results": 10,
+        "mapped_results": 10,
+        "unmapped_results": 0,
+        "passed": 8,
+        "failed": 2,
+        "skipped": 0,
+        "failure_rate": 0.2,
+        "skip_rate": 0.0,
+    }
+
+    insights = [
+        Insight(
+            code="TEST_INSIGHT",
+            severity="warning",
+            title="Test Insight",
+            details="This is a test insight for verification.",
+        )
+    ]
+
+    report = build_markdown_report(metrics, 80, "Medium", insights=insights)
+
+    assert "## Key Insights" in report
+    assert "**WARNING**" in report
+    assert "Test Insight" in report
+    assert "This is a test insight" in report
+
+
+def test_insights_section_not_included_when_none():
+    """Verify insights section is not included when insights is None."""
+    metrics = {
+        "total_cases": 10,
+        "total_results": 10,
+        "mapped_results": 10,
+        "unmapped_results": 0,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "failure_rate": 0.0,
+        "skip_rate": 0.0,
+    }
+
+    report = build_markdown_report(metrics, 100, "Low", insights=None)
+
+    assert "## Key Insights" not in report
+
+
+def test_insights_section_not_included_when_empty():
+    """Verify insights section is not included when insights is empty list."""
+    metrics = {
+        "total_cases": 10,
+        "total_results": 10,
+        "mapped_results": 10,
+        "unmapped_results": 0,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "failure_rate": 0.0,
+        "skip_rate": 0.0,
+    }
+
+    report = build_markdown_report(metrics, 100, "Low", insights=[])
+
+    assert "## Key Insights" not in report
+
+
+def test_insights_formatting():
+    """Verify insight bullets are formatted correctly."""
+    from pack.insights import Insight
+
+    metrics = {
+        "total_cases": 10,
+        "total_results": 10,
+        "mapped_results": 10,
+        "unmapped_results": 0,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "failure_rate": 0.0,
+        "skip_rate": 0.0,
+    }
+
+    insights = [
+        Insight(code="CRITICAL_TEST", severity="critical", title="Critical Title", details="Critical details."),
+        Insight(code="WARNING_TEST", severity="warning", title="Warning Title", details="Warning details."),
+        Insight(code="INFO_TEST", severity="info", title="Info Title", details="Info details."),
+    ]
+
+    report = build_markdown_report(metrics, 100, "Low", insights=insights)
+
+    assert "**CRITICAL** Critical Title:" in report
+    assert "**WARNING** Warning Title:" in report
+    assert "**INFO** Info Title:" in report

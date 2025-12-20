@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-def build_markdown_report(metrics: dict, score: int, risk: str) -> str:
+def build_markdown_report(metrics: dict, score: int, risk: str, insights: list | None = None) -> str:
     """
     Build a deterministic Markdown report for pre-release QA risk review.
 
@@ -10,6 +10,7 @@ def build_markdown_report(metrics: dict, score: int, risk: str) -> str:
                  unmapped_results, passed, failed, skipped, failure_rate, skip_rate
         score: Release readiness score (0-100)
         risk: Risk level ("Low", "Medium", or "High")
+        insights: Optional list of insights to include in the report
 
     Returns:
         Complete Markdown report as a string
@@ -38,9 +39,19 @@ def build_markdown_report(metrics: dict, score: int, risk: str) -> str:
         f"- Failure rate: {metrics['failure_rate'] * 100:.1f}%",
         f"- Skip rate: {metrics['skip_rate'] * 100:.1f}%",
         "",
-        "## High-Risk Indicators",
-        "",
     ]
+
+    # Add insights section if provided
+    if insights:
+        lines.append("## Key Insights")
+        lines.append("")
+        for insight in insights:
+            severity_upper = insight.severity.upper()
+            lines.append(f"- **{severity_upper}** {insight.title}: {insight.details}")
+        lines.append("")
+
+    lines.append("## High-Risk Indicators")
+    lines.append("")
 
     # Add high-risk indicators
     risk_indicators = _build_high_risk_indicators(metrics)

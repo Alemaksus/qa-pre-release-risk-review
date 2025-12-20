@@ -22,6 +22,7 @@ def test_pipeline_end_to_end_basic():
     assert "risk" in output
     assert "markdown_report" in output
     assert "counts" in output
+    assert "insights" in output
 
     # Check counts structure
     counts = output["counts"]
@@ -51,6 +52,18 @@ def test_pipeline_end_to_end_basic():
     assert isinstance(markdown, str)
     assert "# Pre-Release QA Risk Review" in markdown
     assert "Score" in markdown or "Release Readiness Score" in markdown
+    assert "## Key Insights" in markdown
+
+    # Check insights structure
+    insights = output["insights"]
+    assert isinstance(insights, list)
+    assert len(insights) > 0
+    for insight in insights:
+        assert "code" in insight
+        assert "severity" in insight
+        assert "title" in insight
+        assert "details" in insight
+        assert insight["severity"] in {"info", "warning", "critical"}
 
 
 def test_pipeline_end_to_end_no_failures():

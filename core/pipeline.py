@@ -4,6 +4,7 @@ from core.normalization import normalize
 from core.scoring.scorer import compute_metrics
 from core.reporting.report_builder import build_markdown_report
 from pack.config import ScoringConfig, compute_score_with_config, classify_risk_with_config
+from pack.insights import generate_insights
 
 
 def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
@@ -16,13 +17,15 @@ def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
     - risk: risk level ("Low", "Medium", or "High")
     - markdown_report: complete markdown report string
     - counts: dictionary with test_cases_count, results_count, mapped_results_count
+    - insights: list of insights derived from metrics, score, and risk
     """
     data = normalize(test_case_dicts, result_dicts)
     metrics = compute_metrics(data)
     config = ScoringConfig()
     score = compute_score_with_config(metrics, config)
     risk = classify_risk_with_config(score, config)
-    markdown = build_markdown_report(metrics, score, risk)
+    insights = generate_insights(metrics, score, risk)
+    markdown = build_markdown_report(metrics, score, risk, insights=insights)
 
     test_cases_count = len(data.test_cases)
     results_count = len(data.results)
@@ -38,6 +41,10 @@ def run_pipeline(test_case_dicts: list[dict], result_dicts: list[dict]) -> dict:
             "results_count": results_count,
             "mapped_results_count": mapped_results_count,
         },
+        "insights": [
+            {"code": i.code, "severity": i.severity, "title": i.title, "details": i.details}
+            for i in insights
+        ],
     }
 
 
